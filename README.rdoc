@@ -1,49 +1,49 @@
 
 = Carmen- A simple collection of geographic names and abbreviations for Ruby
 
+This fork turns it into a class so that you can exclude certain countries/states etc with each call instead of having those come from global variables.
+
 This library will work as a drop in replacement for the official Rails country_select and its various forks. The idea is to provide a single library for all geographic naming concerns, and unify them under a consistent API.
 
 States are supported for the following countries: Australia, Brazil, Canada, Cuba, Denmark, Germany, India, Italy, Mexico, New Zealand, Norway, Spain, Ukraine, and United States.
 
 == Installation
 
-  gem install carmen
-
-If you're in Rails 2.3 or earlier, place this in your environment.rb:
-
-  config.gem 'carmen'
-
 If you're in Rails 3, put this in your Gemfile:
 
-  gem "carmen"
+  gem 'carmen', :git => 'git://github.com/brjennin/carmen.git'
 
 
 == Get a list of all countries
 
-  Carmen.countries => […, ['Germany', 'DE'], …, ['United States', 'US'], …]
-  Carmen.countries(:locale => 'de') => […, ['Deutschland', 'DE'], …, ['Vereinigte Staaten von Amerika', 'US'], …]
+  c = Carmen::Carmen.new
+  c.countries => […, ['Germany', 'DE'], …, ['United States', 'US'], …]
+  c.countries(:locale => 'de') => […, ['Deutschland', 'DE'], …, ['Vereinigte Staaten von Amerika', 'US'], …]
 
 == State list retrieval
 
-  Carmen::states('US') => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
-  Carmen::states => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ] # uses default country
-  Carmen::state_names('US') => ['Alabama', 'Arkansas', ... ]
-  Carmen::state_codes('US') => ['AL', 'AR', ... ]
+  c = Carmen::Carmen.new
+  c::states('US') => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
+  c::states => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ] # uses default country
+  c::state_names('US') => ['Alabama', 'Arkansas', ... ]
+  c::state_codes('US') => ['AL', 'AR', ... ]
 
 == Abbreviation handling
 
-  Carmen::country_name('US') => 'United States'
-  Carmen::country_code('Canada') => 'CA'
-  Carmen::state_code('Illinois') => 'IL'
-  Carmen::state_code('Manitoba', 'CA') => 'MB'
-  Carmen::state_name('AZ') => 'Arizona'
+  c = Carmen::Carmen.new
+  c::country_name('US') => 'United States'
+  c::country_code('Canada') => 'CA'
+  c::state_code('Illinois') => 'IL'
+  c::state_code('Manitoba', 'CA') => 'MB'
+  c::state_name('AZ') => 'Arizona'
 
 
 == Default Country
 
 Methods that take a country code argument will use the default country if none is provided. The default default country is 'US'. You can change it to any country code:
 
-  Carmen.default_country = 'CA'
+  c = Carmen::Carmen.new
+  c.default_country = 'CA'
 
 = Adding country and state exclusion to Carmen
 
@@ -53,24 +53,28 @@ This fork lets you exclude specific countries and/or states from Carmen. Simply 
 
 Countries to exclude are specified as an array of country codes:
 
-  Carmen.excluded_countries = [ 'AF', 'ST', 'ZW', ... ]
+  c = Carmen::Carmen.new
+  c.excluded_countries = [ 'AF', 'ST', 'ZW', ... ]
 
 == Excluding States
 
 States to exclude are specified via a hash, with keys being the country's code, and values being the states to exclude from that country:
 
-  Carmen.excluded_states = { 'US' => [ 'AA', 'AP', 'PW', ... ], 'DE' => [ 'BW', 'TH' ], ... }
+  c = Carmen::Carmen.new
+  c.excluded_states = { 'US' => [ 'AA', 'AP', 'PW', ... ], 'DE' => [ 'BW', 'TH' ], ... }
 
 == Localization
 
 You can switch between different localizations of the countries list, by setting the locale value (default is :en):
 
-  Carmen.default_locale = :de
+  c = Carmen::Carmen.new
+  c.default_locale = :de
 
 Methods that return country names also take an optional options hash as the last argument, which can be use to override the default locale for a single call:
 
-  Carmen::country_name('US') => 'United States'
-  Carmen::country_name('US', :locale => :de) => 'Vereinigte Staaten von Amerika'
+  c = Carmen::Carmen.new
+  c::country_name('US') => 'United States'
+  c::country_name('US', :locale => :de) => 'Vereinigte Staaten von Amerika'
 
 Currently included localizations are: English (:en), German (:de)
 

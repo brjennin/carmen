@@ -40,8 +40,6 @@ module Carmen
       [File.basename(file_name, '.yml').upcase, YAML.load_file(file_name)]
     end
 
-
-
     # Returns a list of all countries
     def countries(options={})
       # Use specified locale or fall back to default locale
