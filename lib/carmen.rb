@@ -25,8 +25,14 @@ module Carmen
   class UnavailableLocale < RuntimeError; end
 
   class Carmen
-    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
+    attr_accessor :default_country, :default_locale, :excluded_states
 
+    def excluded_countries= (val)
+      @excluded_countries = val
+    end
+    def excluded_countries
+      @excluded_countries
+    end
     def new
       @default_country = 'US'
       @default_locale = :en
