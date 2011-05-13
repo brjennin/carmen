@@ -14,15 +14,15 @@ if defined?(Rails)
   end
 end
 
-module Carmen
-  class << self
-    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
-  end
+class Carmen
+#  class << self
+#    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
+#  end
 
-  self.default_country = 'US'
-  self.default_locale = :en
-  self.excluded_countries = []
-  self.excluded_states = {}
+  default_country = 'US'
+  default_locale = :en
+  excluded_countries = []
+  excluded_states = {}
 
   @data_path = File.join(File.dirname(__FILE__), '..', 'data')
 
