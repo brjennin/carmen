@@ -26,10 +26,13 @@ module Carmen
 
   class Carmen
     attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
-    @default_country = 'US'
-    @default_locale = :en
-    @excluded_countries = []
-    @excluded_states = {}
+
+    def new
+      @default_country = 'US'
+      @default_locale = :en
+      @excluded_countries = []
+      @excluded_states = {}
+    end
 
     @@data_path = File.join(File.dirname(__FILE__), '..', 'data')
 
