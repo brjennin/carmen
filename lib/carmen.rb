@@ -15,14 +15,14 @@ if defined?(Rails)
 end
 
 module Carmen
-  class << CarmenSandy
+  class Carmen
     attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
   end
 
-  default_country = 'US'
-  default_locale = :en
-  excluded_countries = []
-  excluded_states = {}
+  self.default_country = 'US'
+  self.default_locale = :en
+  self.excluded_countries = []
+  self.excluded_states = {}
 
   @data_path = File.join(File.dirname(__FILE__), '..', 'data')
 
@@ -152,4 +152,3 @@ module Carmen
     nil
   end
 end
-
