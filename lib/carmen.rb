@@ -40,7 +40,7 @@ module Carmen
 
 
     # Returns a list of all countries
-    def self.countries(options={})
+    def countries(options={})
       # Use specified locale or fall back to default locale
       locale = (options.delete(:locale) || @@default_locale).to_s
 
@@ -65,58 +65,58 @@ module Carmen
     # Returns the country name corresponding to the supplied country code, optionally using the specified locale.
     #  Carmen::country_name('TR') => 'Turkey'
     #  Carmen::country_name('TR', :locale => :de) => 'Türkei'
-    def self.country_name(country_code, options={})
+    def country_name(country_code, options={})
       search_collection(countries(options), country_code, 1, 0)
     end
 
     # Returns the country code corresponding to the supplied country name
     #  Carmen::country_code('Canada') => 'CA'
-    def self.country_code(country_name, options={})
+    def country_code(country_name, options={})
       search_collection(countries(options), country_name, 0, 1)
     end
 
     # Returns an array of all country codes
     #  Carmen::country_codes => ['AF', 'AX', 'AL', ... ]
-    def self.country_codes
+    def country_codes
       countries.map {|c| c[1] }
     end
 
     # Returns an array of all country names, optionally using the specified locale.
     #  Carmen::country_names => ['Afghanistan', 'Aland Islands', 'Albania', ... ]
     #  Carmen::country_names(:locale => :de) => ['Afghanistan', 'Åland', 'Albanien', ... ]
-    def self.country_names(options={})
+    def country_names(options={})
       countries(options).map {|c| c[0] }
     end
 
     # Returns the state name corresponding to the supplied state code within the default country
     #  Carmen::state_code('New Hampshire') => 'NH'
-    def self.state_name(state_code, country_code = @@default_country, options={})
-      search_collection(self.states(country_code, options), state_code, 1, 0)
+    def state_name(state_code, country_code = @@default_country, options={})
+      search_collection(states(country_code, options), state_code, 1, 0)
     end
 
     # Returns the state code corresponding to the supplied state name within the specified country
     #  Carmen::state_code('IL', 'US') => Illinois
-    def self.state_code(state_name, country_code = @@default_country, options={})
-      search_collection(self.states(country_code, options), state_name, 0, 1)
+    def state_code(state_name, country_code = @@default_country, options={})
+      search_collection(states(country_code, options), state_name, 0, 1)
     end
 
     # Returns an array of state names within the default code
     #  Carmen::state_names('US') => ['Alabama', 'Arkansas', ... ]
-    def self.state_names(country_code = @@default_country, options={})
-      self.states(country_code, options).map{|name, code| name}
+    def state_names(country_code = @@default_country, options={})
+      states(country_code, options).map{|name, code| name}
     end
 
     # Returns an array of state codes within the specified country code
     #   Carmen::state_codes('US') => ['AL', 'AR', ... ]
-    def self.state_codes(country_code = @@default_country)
-      self.states(country_code).map{|name, code| code}
+    def state_codes(country_code = @@default_country)
+      states(country_code).map{|name, code| code}
     end
 
     # Returns an array structure of state names and codes within the specified country code, or within the default country
     # if none is provided.
     #   Carmen::states('US') => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
     #   Carmen::states => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
-    def self.states(country_code = @@default_country, options={})
+    def states(country_code = @@default_country, options={})
       raise NonexistentCountry.new("Country not found for code #{country_code}") unless country_codes.include?(country_code)
       raise StatesNotSupported unless states?(country_code)
 
@@ -132,7 +132,7 @@ module Carmen
     # Returns whether states are supported for the given country code
     #   Carmen::states?('US') => true
     #   Carmen::states?('ZZ') => false
-    def self.states?(country_code, options={})
+    def states?(country_code, options={})
       @states.any? do |array| k,v = array
         k == country_code
       end
@@ -140,7 +140,7 @@ module Carmen
 
     protected
 
-    def self.search_collection(collection, value, index_to_match, index_to_retrieve)
+    def search_collection(collection, value, index_to_match, index_to_retrieve)
       return nil if collection.nil?
       collection.each do |m|
         return m[index_to_retrieve] if m[index_to_match].downcase == value.downcase
