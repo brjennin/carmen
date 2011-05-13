@@ -25,42 +25,15 @@ module Carmen
   class UnavailableLocale < RuntimeError; end
 
   class Carmen
-    @@default_country = 'US'
-    @@default_locale = :en
-    @@excluded_countries = []
-    @@excluded_states = {}
+    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
+    @default_country = 'US'
+    @default_locale = :en
+    @excluded_countries = []
+    @excluded_states = {}
 
-    def default_country= (val)
-      @@default_country = val
-    end
-    def default_country
-      @@default_country
-    end
+    @data_path = File.join(File.dirname(__FILE__), '..', 'data')
 
-    def default_locale= (val)
-      @@default_locale = val
-    end
-    def default_locale
-      @@default_locale
-    end
-
-    def excluded_countries= (val)
-      @@excluded_countries = val
-    end
-    def excluded_countries
-      @@excluded_countries
-    end
-
-    def excluded_states= (val)
-      @@excluded_states = val
-    end
-    def excluded_states
-      @@excluded_states
-    end
-
-    @@data_path = File.join(File.dirname(__FILE__), '..', 'data')
-
-    @@states = Dir[File.join(@@data_path, '/states/*.yml')].map do |file_name|
+    @states = Dir[File.join(@data_path, '/states/*.yml')].map do |file_name|
       [File.basename(file_name, '.yml').upcase, YAML.load_file(file_name)]
     end
 
@@ -69,13 +42,13 @@ module Carmen
     # Returns a list of all countries
     def countries(options={})
       # Use specified locale or fall back to default locale
-      locale = (options.delete(:locale) || @@default_locale).to_s
+      locale = (options.delete(:locale) || @default_locale).to_s
 
       # Load the country list for the specified locale
       @countries ||= {}
       unless @countries[locale]
         # Check if data in the specified locale is available
-        localized_data = File.join(@@data_path, "countries", "#{locale}.yml")
+        localized_data = File.join(@data_path, "countries", "#{locale}.yml")
         unless File.exists?(localized_data)
           raise(UnavailableLocale, "Could not load countries for '#{locale}' locale")
         end
@@ -85,7 +58,7 @@ module Carmen
       end
 
       # Return data after filtering excluded countries
-      @countries[locale].reject { |c| @@excluded_countries.include?( c[1] ) }
+      @countries[locale].reject { |c| @excluded_countries.include?( c[1] ) }
     end
 
 
@@ -117,25 +90,25 @@ module Carmen
 
     # Returns the state name corresponding to the supplied state code within the default country
     #  Carmen::state_code('New Hampshire') => 'NH'
-    def state_name(state_code, country_code = @@default_country, options={})
+    def state_name(state_code, country_code = @default_country, options={})
       search_collection(states(country_code, options), state_code, 1, 0)
     end
 
     # Returns the state code corresponding to the supplied state name within the specified country
     #  Carmen::state_code('IL', 'US') => Illinois
-    def state_code(state_name, country_code = @@default_country, options={})
+    def state_code(state_name, country_code = @default_country, options={})
       search_collection(states(country_code, options), state_name, 0, 1)
     end
 
     # Returns an array of state names within the default code
     #  Carmen::state_names('US') => ['Alabama', 'Arkansas', ... ]
-    def state_names(country_code = @@default_country, options={})
+    def state_names(country_code = @default_country, options={})
       states(country_code, options).map{|name, code| name}
     end
 
     # Returns an array of state codes within the specified country code
     #   Carmen::state_codes('US') => ['AL', 'AR', ... ]
-    def state_codes(country_code = @@default_country)
+    def state_codes(country_code = @default_country)
       states(country_code).map{|name, code| code}
     end
 
@@ -143,14 +116,14 @@ module Carmen
     # if none is provided.
     #   Carmen::states('US') => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
     #   Carmen::states => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
-    def states(country_code = @@default_country, options={})
+    def states(country_code = @default_country, options={})
       raise NonexistentCountry.new("Country not found for code #{country_code}") unless country_codes.include?(country_code)
       raise StatesNotSupported unless states?(country_code)
 
-      results = search_collection(@@states, country_code, 0, 1)
+      results = search_collection(@states, country_code, 0, 1)
 
-      if @@excluded_states[country_code]
-          results.reject { |s| @@excluded_states[country_code].include?(s[1]) }
+      if @excluded_states[country_code]
+          results.reject { |s| @excluded_states[country_code].include?(s[1]) }
       else
           results
       end
@@ -160,7 +133,7 @@ module Carmen
     #   Carmen::states?('US') => true
     #   Carmen::states?('ZZ') => false
     def states?(country_code, options={})
-      @@states.any? do |array| k,v = array
+      @states.any? do |array| k,v = array
         k == country_code
       end
     end
