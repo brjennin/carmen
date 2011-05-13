@@ -15,15 +15,21 @@ if defined?(Rails)
 end
 
 module Carmen
+  # Raised when attempting to retrieve states for an unsupported country
+  class StatesNotSupported < RuntimeError; end
+
+  # Raised when attempting to work with a country not in the data set
+  class NonexistentCountry < RuntimeError; end
+
+  # Raised when attemting to switch to a locale which does not exist
+  class UnavailableLocale < RuntimeError; end
+
   class Carmen
-    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
-    self.default_country = 'US'
-    self.default_locale = :en
-    self.excluded_countries = []
-    self.excluded_states = {}
-
-
-
+#    attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
+    @@default_country = 'US'
+    @@default_locale = :en
+    @@excluded_countries = []
+    @@excluded_states = {}
 
     @data_path = File.join(File.dirname(__FILE__), '..', 'data')
 
@@ -31,19 +37,12 @@ module Carmen
       [File.basename(file_name, '.yml').upcase, YAML.load_file(file_name)]
     end
 
-    # Raised when attempting to retrieve states for an unsupported country
-    class StatesNotSupported < RuntimeError; end
 
-    # Raised when attempting to work with a country not in the data set
-    class NonexistentCountry < RuntimeError; end
-
-    # Raised when attemting to switch to a locale which does not exist
-    class UnavailableLocale < RuntimeError; end
 
     # Returns a list of all countries
     def self.countries(options={})
       # Use specified locale or fall back to default locale
-      locale = (options.delete(:locale) || @default_locale).to_s
+      locale = (options.delete(:locale) || @@default_locale).to_s
 
       # Load the country list for the specified locale
       @countries ||= {}
@@ -59,7 +58,7 @@ module Carmen
       end
 
       # Return data after filtering excluded countries
-      @countries[locale].reject { |c| excluded_countries.include?( c[1] ) }
+      @countries[locale].reject { |c| @@excluded_countries.include?( c[1] ) }
     end
 
 
@@ -91,25 +90,25 @@ module Carmen
 
     # Returns the state name corresponding to the supplied state code within the default country
     #  Carmen::state_code('New Hampshire') => 'NH'
-    def self.state_name(state_code, country_code = Carmen.default_country, options={})
+    def self.state_name(state_code, country_code = @@default_country, options={})
       search_collection(self.states(country_code, options), state_code, 1, 0)
     end
 
     # Returns the state code corresponding to the supplied state name within the specified country
     #  Carmen::state_code('IL', 'US') => Illinois
-    def self.state_code(state_name, country_code = Carmen.default_country, options={})
+    def self.state_code(state_name, country_code = @@default_country, options={})
       search_collection(self.states(country_code, options), state_name, 0, 1)
     end
 
     # Returns an array of state names within the default code
     #  Carmen::state_names('US') => ['Alabama', 'Arkansas', ... ]
-    def self.state_names(country_code = Carmen.default_country, options={})
+    def self.state_names(country_code = @@default_country, options={})
       self.states(country_code, options).map{|name, code| name}
     end
 
     # Returns an array of state codes within the specified country code
     #   Carmen::state_codes('US') => ['AL', 'AR', ... ]
-    def self.state_codes(country_code = Carmen.default_country)
+    def self.state_codes(country_code = @@default_country)
       self.states(country_code).map{|name, code| code}
     end
 
@@ -117,14 +116,14 @@ module Carmen
     # if none is provided.
     #   Carmen::states('US') => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
     #   Carmen::states => [['Alabama', 'AL'], ['Arkansas', 'AR'], ... ]
-    def self.states(country_code = Carmen.default_country, options={})
+    def self.states(country_code = @@default_country, options={})
       raise NonexistentCountry.new("Country not found for code #{country_code}") unless country_codes.include?(country_code)
       raise StatesNotSupported unless states?(country_code)
 
       results = search_collection(@states, country_code, 0, 1)
 
-      if excluded_states[country_code]
-          results.reject { |s| excluded_states[country_code].include?(s[1]) }
+      if @@excluded_states[country_code]
+          results.reject { |s| @@excluded_states[country_code].include?(s[1]) }
       else
           results
       end
