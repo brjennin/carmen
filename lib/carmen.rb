@@ -27,6 +27,10 @@ module Carmen
   class Carmen
     attr_accessor :default_country, :default_locale, :excluded_countries, :excluded_states
 
+    def append_excluded_states(hash)
+      hash.each {|key, value| merge_country_states(key,value)}
+    end
+
     def initialize
       @default_country = 'US'
       @default_locale = :en
@@ -151,6 +155,14 @@ module Carmen
         return m[index_to_retrieve] if m[index_to_match].downcase.match(value.downcase)
       end
       nil
+    end
+
+    def merge_country_states(key,value)
+      if @excluded_states.has_key?(key)
+        @excluded_states[key] = @excluded_states[key]|value
+      else
+        @excluded_states[key] = value
+      end
     end
   end
 end
