@@ -31,6 +31,10 @@ module Carmen
       hash.each {|key, value| merge_country_states(key,value)}
     end
 
+    def append_excluded_countries(country_array)
+      @excluded_countries = @excluded_countries | country_array
+    end
+
     def initialize
       @default_country = 'US'
       @default_locale = :en
@@ -65,7 +69,6 @@ module Carmen
       # Return data after filtering excluded countries
       @countries[locale].reject { |c| @excluded_countries.include?( c[1] ) }
     end
-
 
     # Returns the country name corresponding to the supplied country code, optionally using the specified locale.
     #  Carmen::country_name('TR') => 'Turkey'
